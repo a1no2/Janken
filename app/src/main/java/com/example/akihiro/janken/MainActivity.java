@@ -19,7 +19,7 @@ import java.util.Random;
 public class MainActivity extends ActionBarActivity {
     boolean start_bool = true;      //スタートしたらfalse
     Button staret, end;
-
+    //  変更
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
