@@ -135,8 +135,8 @@ public class Result extends ActionBarActivity {
                     save_bool[1] = false;
                     c.moveToPosition(4);
                     sukoa_id = c.getInt(c.getColumnIndex(MyDbHelper.SCORE));
+                    break;
                 }
-                break;      //ベスト5入りが確定したら抜ける
             }else{
                 save_bool[0] = false;
             }
@@ -149,7 +149,11 @@ public class Result extends ActionBarActivity {
         //データベース
         // Writa..は読み書き可、Reada...は読み取り
         values = new ContentValues();       //
-        values.put(MyDbHelper.NAME, uketori_name[0]);
+        if(uketori_name[0] == ""){
+            values.put(MyDbHelper.NAME, "名無し");
+        }else {
+            values.put(MyDbHelper.NAME, uketori_name[0]);
+        }
         values.put(MyDbHelper.SCORE, sukoa);
 
         db.insert(
@@ -166,7 +170,11 @@ public class Result extends ActionBarActivity {
         db = helper.getWritableDatabase();
         values = new ContentValues();
 
-        values.put(MyDbHelper.NAME, uketori_name[0]);
+        if(uketori_name[0] == ""){
+            values.put(MyDbHelper.NAME, "名無し");
+        }else {
+            values.put(MyDbHelper.NAME, uketori_name[0]);
+        }
         values.put(MyDbHelper.SCORE, sukoa);
 
         db.update(      //更新
