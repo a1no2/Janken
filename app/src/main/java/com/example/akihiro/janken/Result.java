@@ -20,7 +20,7 @@ public class Result extends ActionBarActivity {
     private SQLiteDatabase db;
     private ContentValues values;
 
-    static int sukoa;               //ゲームで出たスコア
+    static long sukoa;               //ゲームで出たスコア
     static boolean[] save_bool = {false, true};
     //0,過去スコアと比較して、スコア更新ならtrue
     //1,スコアを新たに保存するか(true)、上書きするか(false)
@@ -196,14 +196,14 @@ public class Result extends ActionBarActivity {
             ri_syoubusuu.setText("勝負回数：" + result[1]);
         } else {
             //勝率を出す計算
-            double j = result[1] / result[0] * 10;
-
             ri_syouri.setText("勝利数：" + result[0]);
             ri_syoubusuu.setText("勝負回数：" + result[1]);
+            double j = Math.round((result[1] / result[0]) * 100);
+
             ri_syouritu.setText("勝率：" + j + "%");
 
-            j = result[0] * (j / 100) * 1000;
-            sukoa = (int) j;                        //スコア
+            j = (double)result[0] * j * (double)10;
+            sukoa = Math.round(j);            //スコア
 
             ri_sukoa.setText(sukoa + "");
         }
