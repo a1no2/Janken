@@ -1,5 +1,6 @@
 package com.example.akihiro.janken;
 
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Matrix;
@@ -7,7 +8,9 @@ import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -21,6 +24,8 @@ public class ranking extends ActionBarActivity {
     private MyDbHelper helper;
     private SQLiteDatabase db;
 
+    Button button;
+
 
 
     @Override
@@ -28,6 +33,7 @@ public class ranking extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ranking);
 
+        button = (Button)findViewById(R.id.button);
         rank_lv = (ListView)findViewById(R.id.rank_lv);
 
         helper = new MyDbHelper(this);      //ヘルパーの初期化
@@ -59,6 +65,14 @@ public class ranking extends ActionBarActivity {
         );
         rank_lv.setAdapter(adapter);
 
+
+        //戻るボタン
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
     }
 
 

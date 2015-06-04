@@ -82,9 +82,7 @@ public class Result extends ActionBarActivity {
         bakku_bt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //Result.this.finish();   //力技?
-                Intent i = new Intent(Result.this, MainActivity.class);
-                startActivity(i);
+                finish();
             }
         });
 
@@ -125,18 +123,18 @@ public class Result extends ActionBarActivity {
 
         //トップ5の5回分まわして記録更新かどうか判定
         for (int j = 0; j< 5; j++) {
-            if (sukoa>kako_rank[j]){    //スコア更新するかどうか
+            if (kako_rank[j]<sukoa){    //スコア更新するかどうか
                 save_bool[0] = true;
                 int k = c.getColumnCount();     //カラム数
                 if(k < 5){        //カラム数が5個以下なら新規保存、以上なら一番低いスコアを上書き
                     save_bool[1] = true;        //っていう設定を保存してメインに戻る
-                    break;
                 }else{
                     save_bool[1] = false;
                     c.moveToPosition(4);
                     sukoa_id = c.getInt(c.getColumnIndex(MyDbHelper.SCORE));
-                    break;
                 }
+            j = 5;      //一応…ね？
+            break;
             }else{
                 save_bool[0] = false;
             }
