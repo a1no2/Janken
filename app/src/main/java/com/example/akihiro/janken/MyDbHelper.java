@@ -33,6 +33,12 @@ public class MyDbHelper extends SQLiteOpenHelper{
                 + NAME + " text,"   //varchar(文字数指定まっくす256)
                 + SCORE + " integer);"
         );
+        db.execSQL("insert into mydata values(0, aaa, 1000);");
+        db.execSQL("insert into mydata values(0, aaa, 1000);");
+        db.execSQL("insert into mydata values(0, aaa, 1000);");
+        db.execSQL("insert into mydata values(0, aaa, 1000);");
+        db.execSQL("insert into mydata values(0, aaa, 1000);");
+
     }
 
     //インクリメントやめないと更新されるたびに,ごみデータが増えていく？

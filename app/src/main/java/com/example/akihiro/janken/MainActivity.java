@@ -319,7 +319,7 @@ public class MainActivity extends ActionBarActivity {
         staret.setText("スタート");
         CPU_tv.setText("スタートボタンで\nゲームを始められるよ");
         syouri_tv.setText("勝利回数：" + syouri);
-        batoru.setImageResource(R.drawable.mihon);
+        batoru.setImageResource(R.drawable.gu);
     }
 
 

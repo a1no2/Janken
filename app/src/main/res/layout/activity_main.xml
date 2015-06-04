@@ -71,7 +71,7 @@
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
         android:scaleType="fitXY"
-        android:src="@drawable/mihon" />
+        android:src="@drawable/gu" />
 
 
     <!-- -->
