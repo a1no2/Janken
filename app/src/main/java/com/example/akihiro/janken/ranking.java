@@ -19,7 +19,7 @@ public class ranking extends ActionBarActivity {
     //スコアの表示とかに使う
     ListView rank_lv;
     ArrayAdapter<String>adapter;
-    String[] str = {"-\t0","-\t0","-\t0","-\t0","-\t0"};
+    String[] str = {"0\t-","0\t-","0\t-","0\t-","0\t-"};
 
     private MyDbHelper helper;
     private SQLiteDatabase db;

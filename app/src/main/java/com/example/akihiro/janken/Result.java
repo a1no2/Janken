@@ -13,6 +13,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import java.math.BigDecimal;
+
 
 public class Result extends ActionBarActivity {
     //データベース
@@ -21,7 +23,7 @@ public class Result extends ActionBarActivity {
     private ContentValues values;
 
     static long sukoa;               //ゲームで出たスコア
-    static boolean[] save_bool = {false, true};
+    static boolean save_bool = false;
     //0,過去スコアと比較して、スコア更新ならtrue
     //1,スコアを新たに保存するか(true)、上書きするか(false)
 
@@ -36,8 +38,8 @@ public class Result extends ActionBarActivity {
     Button ranking_bt;      //過去のスコア、ランキング表示ページに遷移
 
     //スコア関係
-    String[] uketori_name = {"","",""};
-    static int[] result = {0,0};
+    String[] uketori_name = {"", "", ""};
+    static int[] result = {0, 0};
     static int sukoa_id = 0;
 
     @Override
@@ -68,6 +70,7 @@ public class Result extends ActionBarActivity {
         ranku_hantei();     //ランキング(トップ5)に入るかの判定
 
         //スコアがトップ5に入ってたら保存
+        /*
         if (save_bool[0]) {
             //新規保存か、上書きか
             if (save_bool[1]) {
@@ -75,6 +78,11 @@ public class Result extends ActionBarActivity {
             } else {
                 uwagaki_save();     //上書き
             }
+        }
+        */
+        //ベスト5入りならスコア更新
+        if (save_bool) {
+            uwagaki_save();
         }
 
 
@@ -105,7 +113,7 @@ public class Result extends ActionBarActivity {
         int[] kako_rank = {0, 0, 0, 0, 0};      //過去のランキングを格納 空で比較するとバグるの回避
         Cursor c = db.query(
                 MyDbHelper.TABLE_NAME,
-                new String[]{MyDbHelper.NAME, MyDbHelper.SCORE,MyDbHelper.ID},
+                new String[]{MyDbHelper.NAME, MyDbHelper.SCORE, MyDbHelper.ID},
                 null,   //selection
                 null,   //selectionArgs
                 null,   //groupBy
@@ -122,21 +130,22 @@ public class Result extends ActionBarActivity {
         }
 
         //トップ5の5回分まわして記録更新かどうか判定
-        for (int j = 0; j< 5; j++) {
-            if (kako_rank[j]<sukoa){    //スコア更新するかどうか
-                save_bool[0] = true;
+        for (int j = 0; j < 5; j++) {
+            if (kako_rank[j] < sukoa) {    //スコア更新するかどうか
+                save_bool = true;
+                /*
                 int k = c.getColumnCount();     //カラム数
                 if(k < 5){        //カラム数が5個以下なら新規保存、以上なら一番低いスコアを上書き
                     save_bool[1] = true;        //っていう設定を保存してメインに戻る
                 }else{
                     save_bool[1] = false;
-                    c.moveToPosition(4);
-                    sukoa_id = c.getInt(c.getColumnIndex(MyDbHelper.SCORE));
-                }
-            j = 5;      //一応…ね？
-            break;
+                */
+                c.moveToPosition(4);
+                sukoa_id = c.getInt(c.getColumnIndex(MyDbHelper.SCORE));
+                break;
+                //}
             }else{
-                save_bool[0] = false;
+                save_bool = false;
             }
         }
     }
@@ -147,9 +156,9 @@ public class Result extends ActionBarActivity {
         //データベース
         // Writa..は読み書き可、Reada...は読み取り
         values = new ContentValues();       //
-        if(uketori_name[0] == ""){
+        if (uketori_name[0] == "") {
             values.put(MyDbHelper.NAME, "名無し");
-        }else {
+        } else {
             values.put(MyDbHelper.NAME, uketori_name[0]);
         }
         values.put(MyDbHelper.SCORE, sukoa);
@@ -168,9 +177,9 @@ public class Result extends ActionBarActivity {
         db = helper.getWritableDatabase();
         values = new ContentValues();
 
-        if(uketori_name[0] == ""){
+        if (uketori_name[0] == "") {
             values.put(MyDbHelper.NAME, "名無し");
-        }else {
+        } else {
             values.put(MyDbHelper.NAME, uketori_name[0]);
         }
         values.put(MyDbHelper.SCORE, sukoa);
@@ -180,31 +189,40 @@ public class Result extends ActionBarActivity {
                 values,                             //更新内容
                 MyDbHelper.ID + " = " + sukoa_id,   //条件文
                 null
-                );
+        );
 
         //"ORDER BY " + MyDbHelper.SCORE + " DASC;"
         //昇順に並んだ1番上(スコアが一番小さいもの)を条件したい
         // = の前に , つけたら複数書き換えられる説
 
 
-
     }
 
 
     public void sukoa_hyouji() {
-        if (result[0] == 0) {   //勝利数が0だと出るバグの回避
+        if (result[0] == 0) {   //勝利数が0だと0を割ってバグる
             ri_syoubusuu.setText("勝負回数：" + result[1]);
         } else {
-            //勝率を出す計算
+
+            //rusult[0]     勝ち数
+            //rusult[1]     勝負回数
+
             ri_syouri.setText("勝利数：" + result[0]);
             ri_syoubusuu.setText("勝負回数：" + result[1]);
-            double j = Math.round((result[1] / result[0]) * 100);
 
+            //勝率を出す計算
+            //勝ち(double)／全体(double)まではいいが、＊100すると
+            // 切り上げてんのか切り下げてんのか知らんけど数値バグるから
+            //BigDecimal使って四捨五入
+
+            double j = ((double) (result[0] * 100) / (double) result[1]);
+            BigDecimal bi = new BigDecimal(String.valueOf(j));
+            j = bi.setScale(1, BigDecimal.ROUND_HALF_UP).doubleValue();
             ri_syouritu.setText("勝率：" + j + "%");
 
-            j = (double)result[0] * j * (double)10;
-            sukoa = Math.round(j);            //スコア
-
+            j *= 10;
+            j = (double) result[0] * j;
+            sukoa = Math.round(j);
             ri_sukoa.setText(sukoa + "");
         }
 
