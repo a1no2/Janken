@@ -23,7 +23,7 @@ public class Result extends ActionBarActivity {
     private ContentValues values;
 
     static long sukoa;               //ゲームで出たスコア
-    static boolean save_bool = false;
+    static boolean save_bool = false;   //スコアがトップ５に入ればtrue(保存)
     //0,過去スコアと比較して、スコア更新ならtrue
     //1,スコアを新たに保存するか(true)、上書きするか(false)
 
@@ -67,23 +67,10 @@ public class Result extends ActionBarActivity {
         result[1] = Integer.valueOf(uketori_name[2]).intValue();     //int型の配列に
 
         sukoa_hyouji();     //スコアを表示するメソッド
-        ranku_hantei();     //ランキング(トップ5)に入るかの判定
 
-        //スコアがトップ5に入ってたら保存
-        /*
-        if (save_bool[0]) {
-            //新規保存か、上書きか
-            if (save_bool[1]) {
-                save();             //新規保存
-            } else {
-                uwagaki_save();     //上書き
-            }
-        }
-        */
         //ベスト5入りならスコア更新
-        if (save_bool) {
-            uwagaki_save();
-        }
+        //せーぶもやる
+        ranku_hantei();     //ランキング(トップ5)に入るかの判定
 
 
         //戻るボタン
@@ -93,7 +80,6 @@ public class Result extends ActionBarActivity {
                 finish();
             }
         });
-
 
         //ランキング表示ボタン
         ranking_bt.setOnClickListener(new View.OnClickListener() {
@@ -110,48 +96,42 @@ public class Result extends ActionBarActivity {
     //ランキング(トップ5)に入るかの判定
     private void ranku_hantei() {
 
-        int[] kako_rank = {0, 0, 0, 0, 0};      //過去のランキングを格納 空で比較するとバグるの回避
+        int kako_sukoa = 0;      //過去のランキングを格納 空で比較するとバグるの回避
         Cursor c = db.query(
                 MyDbHelper.TABLE_NAME,
                 new String[]{MyDbHelper.NAME, MyDbHelper.SCORE, MyDbHelper.ID},
                 null,   //selection
                 null,   //selectionArgs
                 null,   //groupBy
-                null,  //having
-                MyDbHelper.SCORE + " desc"     //orderBy
-                // わざわざおーだーばい書かなくていいよ
+                null,  //havingk
+                MyDbHelper.SCORE + " desc"     //orderBy、わざわざおーだーばい書かなくていいよ
         );
 
-        //カラム数回してスコアをiに入れる
-        int i = 0;
-        while (c.moveToNext()) {
-            kako_rank[i] = c.getInt(c.getColumnIndex(MyDbHelper.SCORE));
-            i++;
+        int count = c.getColumnCount();
+        //セーブが許可されたら
+        /*
+        if (count < 5) {
+            save();
+        } else {
+        */
+        c.moveToPosition(4);
+        kako_sukoa = c.getInt(c.getColumnIndex(MyDbHelper.SCORE));
+        sukoa_id = c.getInt(c.getColumnIndex(MyDbHelper.ID));
+        if (sukoa >= kako_sukoa) {
+            uwagaki_save();
+            //}
         }
 
-        //トップ5の5回分まわして記録更新かどうか判定
-        for (int j = 0; j < 5; j++) {
-            if (kako_rank[j] < sukoa) {    //スコア更新するかどうか
-                save_bool = true;
-                /*
-                int k = c.getColumnCount();     //カラム数
-                if(k < 5){        //カラム数が5個以下なら新規保存、以上なら一番低いスコアを上書き
-                    save_bool[1] = true;        //っていう設定を保存してメインに戻る
-                }else{
-                    save_bool[1] = false;
-                */
-                c.moveToPosition(4);
-                sukoa_id = c.getInt(c.getColumnIndex(MyDbHelper.SCORE));
-                break;
-                //}
-            }else{
-                save_bool = false;
-            }
-        }
+        //トップ5の一番スコアが低いものと比較して
+        //このゲームで出した値のほうが大きければ
+        // dbの更新を許可するブーリアンの値をtrue
+
+
     }
 
 
     //dbただ追加するだけ
+    // 多分もう使わない
     private void save() {
         //データベース
         // Writa..は読み書き可、Reada...は読み取り
@@ -183,13 +163,14 @@ public class Result extends ActionBarActivity {
             values.put(MyDbHelper.NAME, uketori_name[0]);
         }
         values.put(MyDbHelper.SCORE, sukoa);
+        sukoa_id =
 
-        db.update(      //更新
-                MyDbHelper.TABLE_NAME,              //テーブル指定
-                values,                             //更新内容
-                MyDbHelper.ID + " = " + sukoa_id,   //条件文
-                null
-        );
+                db.update(      //更新
+                        MyDbHelper.TABLE_NAME,              //テーブル指定
+                        values,                             //更新内容
+                        MyDbHelper.ID + " = " + sukoa_id,   //条件文
+                        null
+                );
 
         //"ORDER BY " + MyDbHelper.SCORE + " DASC;"
         //昇順に並んだ1番上(スコアが一番小さいもの)を条件したい

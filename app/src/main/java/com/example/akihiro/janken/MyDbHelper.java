@@ -7,7 +7,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import java.sql.Struct;
 
-public class MyDbHelper extends SQLiteOpenHelper{
+public class MyDbHelper extends SQLiteOpenHelper {
     private static final String DB_NAME = "mydata.db";
     private static final int DB_VERSION = 1;
     public static final String TABLE_NAME = "mydata";
@@ -16,10 +16,9 @@ public class MyDbHelper extends SQLiteOpenHelper{
     public static final String NAME = "name";
     public static final String SCORE = "score";
 
-    public MyDbHelper(Context context){
-        super(context,DB_NAME,null,DB_VERSION);
+    public MyDbHelper(Context context) {
+        super(context, DB_NAME, null, DB_VERSION);
     }
-
 
 
     //～～～～～SQL文勉強中～～～～～
@@ -29,15 +28,15 @@ public class MyDbHelper extends SQLiteOpenHelper{
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(
                 "create table " + TABLE_NAME + "("
-                + ID + " integer auto_increment primary key,"   //インクリメントやめたほうがいい?
-                + NAME + " text,"   //varchar(文字数指定まっくす256)
-                + SCORE + " integer);"
+                        + ID + " integer auto_increment primary key,"   //インクリメントやめたほうがいい?
+                        + NAME + " text,"   //varchar(文字数指定まっくす256)
+                        + SCORE + " integer);"
         );
-//        db.execSQL("insert into mydata values(0, aaa, 1000);");
-//        db.execSQL("insert into mydata values(0, aaa, 1000);");
-//        db.execSQL("insert into mydata values(0, aaa, 1000);");
-//        db.execSQL("insert into mydata values(0, aaa, 1000);");
-//        db.execSQL("insert into mydata values(0, aaa, 1000);");
+        db.execSQL("insert into mydata values(1,'', 0);");
+        db.execSQL("insert into mydata values(2,'', 0);");
+        db.execSQL("insert into mydata values(3,'', 0);");
+        db.execSQL("insert into mydata values(4,'', 0);");
+        db.execSQL("insert into mydata values(5,'', 0);");
 
     }
 
@@ -58,7 +57,7 @@ public class MyDbHelper extends SQLiteOpenHelper{
 
     //データベースを開かれるたびに呼び出される
     @Override
-    public void onOpen(SQLiteDatabase db){
+    public void onOpen(SQLiteDatabase db) {
         super.onOpen(db);
     }
 }

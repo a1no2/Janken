@@ -21,41 +21,32 @@ import java.util.Random;
 //import java.util.logging.Handler;
 import java.util.logging.LogRecord;
 /*
-//ややこしいので統一する
-//ここでの勝ちはじゃんけんで負けた時
-//それ以外は負けとする(あいこも負け)
-
-問題点 左の数字は特に意味ない
-１、リスタートしますか？の画面で制限時間(○○秒後に処理)が終わると落ちる
-タイマーを設置してそれがゼロになったら遷移という形をとれたら解決するかも
-その場合ポップアップを出してる間タイムは止める
-その時、不正ができないようにじゃんけんの出している手を透明化させるか、変える
-2、SQLがまだ
-6、ゲームの制限時間(タイマー表示)がまだ
-7、全ページのレイアウト整える
-8 ,終了したときmainのアクティビティだけが消えてスコアページが残ったりする
-アクティビティ終了ではなくアプリを終了させる必要がある?
+はんどらーのやつ
+制限時間のこといじる
 */
 public class MainActivity extends ActionBarActivity {
+    MyTimer timer = null;          //タイマー
 
     static int CPU;             //グーは0、チョキは1、パーは2
     static int syouri = 0;          //勝った回数
     static int goukei = 0;          //じゃんけんした合計数
     String[] result = {"名無し","0","0"};  //名前とスコアをリザルト画面に持っていくときに使用
     boolean start_bool = true;      //スタート出来る状態がtrue
+    boolean time_bool = false;       //制限時間が減っていくとき真、リスタート押すと偽で制限時間が止まる
     boolean sourou_bool = true;     //早漏処理ができる状態がtrue
     int sourou_int = 0;             //早漏処理起動回数
 
     //画面表示に関するもの
     Button staret, end;
-    ImageView batoru;
+    ImageView CPU_janken;
     ImageButton gu, tyoki, pa;
+    TextView time_tv;           //残り時間カウント
     TextView syouri_tv;         //勝利回数のカウント
     TextView CPU_tv;            //ヘルプ的な
-    TextView time_tv;           //制限時間
-    EditText editText_name;              //ユーザー名かくとこ
+    EditText editText_name;     //ユーザー名かくとこ
 
-    Handler seigenzikan;        //○○秒後に処理、制限時間を設ける30秒の予定
+    Handler handler = new Handler();        //○○秒後に処理、制限時間を設ける30秒の予定
+    Runnable seigenzikan;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,10 +55,9 @@ public class MainActivity extends ActionBarActivity {
 
         editText_name = (EditText)findViewById(R.id.editText_name);
 
-        //String[] janken = {"gu","tyoki","pa"};
         staret = (Button) findViewById(R.id.start_bt);      //スタート(リスタート)
         end = (Button) findViewById(R.id.end_bt);           //終了
-        batoru = (ImageView) findViewById(R.id.batoru);     //CUPのだすジャンケンの手
+        CPU_janken = (ImageView) findViewById(R.id.CPU_janken);     //CUPのだすジャンケンの手
 
         //ユーザーが押すボタン,それぞれグー、チョキ、パー
         gu = (ImageButton) findViewById(R.id.gu_bt);
@@ -76,6 +66,7 @@ public class MainActivity extends ActionBarActivity {
 
         syouri_tv = (TextView) findViewById(R.id.syouri_tv);    //勝った数のカウントの表示
         CPU_tv = (TextView) findViewById(R.id.CPU_tv);           //スタートボタンでゲーム開始の案内
+        time_tv = (TextView)findViewById(R.id.time_tv);         //残り時間の表示
 
         //初期設定
         syokika();  //初期化メソッド
@@ -148,13 +139,24 @@ public class MainActivity extends ActionBarActivity {
                 if (start_bool) {
                     syokika();      //初期化
                     start_bool = false;
+                    time_bool = true;      //ゲームスタートしたので制限時間が減っていく
                     staret.setText("リスタート");
                     janken_me();        //じゃんけんの画像設置
                     CPU_tv.setText("CPU");
 
+                    time_tv = (TextView)findViewById(R.id.time_tv);     //上で宣言したはずやけど一応　制限時間
+
+                    timer = new MyTimer(
+                            30000,       //何秒カウントダウンするか　持ち時間
+                            10,        //インターバル,ミリ秒
+                            time_tv,    //
+                            getApplicationContext()     //画面情報
+                    );
+                    timer.start();
+
                     //30秒後リザルト画面に移動
-                    seigenzikan = new Handler();
-                    seigenzikan.postDelayed(new Runnable() {
+                    //handlern = new Handler();
+                    handler.postDelayed(new Runnable() {
                         @Override
                         public void run() {
                             if (start_bool) {
@@ -169,8 +171,9 @@ public class MainActivity extends ActionBarActivity {
                                 i.putExtra("riza", result);
                                 startActivity(i);
                             }
+
                         }
-                    }, 3000);        //ミリ秒(30秒)、デバックは3秒になってるから0一個増やす
+                    }, 30000);        //ミリ秒(30秒)、デバックは3秒になってるから0一個増やす
                 } else {
                     showDialog(1);
                 }
@@ -190,11 +193,18 @@ public class MainActivity extends ActionBarActivity {
     }
 
 
-    //制限時間の表示に使う
+    //タイマースタート
+    public void start(View v){
+        if(start_bool){
+            timer.start();
+        }
+    }
+
+
+    //制限時間になったらスコアのデータをもって画面遷移
     public void time(){
 
-        seigenzikan = new Handler();
-        seigenzikan.postDelayed(new Runnable() {
+        handler.postDelayed(new Runnable() {
             @Override
             public void run() {
                 if (start_bool) {
@@ -209,7 +219,7 @@ public class MainActivity extends ActionBarActivity {
                     startActivity(i);
                 }
             }
-        }, 3000);        //ミリ秒(30秒)、デバックは3秒になってるから0一個増やす
+        }, 30000);        //ミリ秒(30秒)、デバックは3秒になってるから0一個増やす
     }
 
 
@@ -219,14 +229,14 @@ public class MainActivity extends ActionBarActivity {
             sourou_bool = false;
             CPU_tv.setText("早漏乙");
 
-            seigenzikan = new Handler();
-            seigenzikan.postDelayed(new Runnable() {
+            Runnable setTextCPU = new Runnable() {
                 @Override
                 public void run() {
                     CPU_tv.setText("右上のスタートボタンで\nゲームを始められるよ");
                     sourou_bool = true;
                 }
-            }, 700);
+            };
+            handler.postDelayed(setTextCPU, 700);
         }
 
 
@@ -253,18 +263,18 @@ public class MainActivity extends ActionBarActivity {
 
     //ランダムでじゃんけんに出す手を決めて、画像を配置
     public void janken_me() {
-        batoru = (ImageView) findViewById(R.id.batoru);
+        CPU_janken = (ImageView) findViewById(R.id.CPU_janken);
         Random ran = new Random();
         CPU = ran.nextInt(3);
         switch (CPU) {
             case 0:
-                batoru.setImageResource(R.drawable.gu);
+                CPU_janken.setImageResource(R.drawable.gu);
                 return;
             case 1:
-                batoru.setImageResource(R.drawable.tyoki);
+                CPU_janken.setImageResource(R.drawable.tyoki);
                 return;
             case 2:
-                batoru.setImageResource(R.drawable.pa);
+                CPU_janken.setImageResource(R.drawable.pa);
                 return;
         }
     }
@@ -316,10 +326,13 @@ public class MainActivity extends ActionBarActivity {
         goukei = 0;
         sourou_int = 0;
         start_bool = true;      //スタート出来るときtrue
+        time_bool = false;      //ゲームスタートまでカウントはストップ
         staret.setText("スタート");
         CPU_tv.setText("スタートボタンで\nゲームを始められるよ");
+
+
         syouri_tv.setText("勝利回数：" + syouri);
-        batoru.setImageResource(R.drawable.gu);
+        CPU_janken.setImageResource(R.drawable.gu);
     }
 
 

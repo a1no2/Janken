@@ -19,7 +19,7 @@ public class ranking extends ActionBarActivity {
     //スコアの表示とかに使う
     ListView rank_lv;
     ArrayAdapter<String>adapter;
-    String[] str = {"0\t-","0\t-","0\t-","0\t-","0\t-"};
+    String[] str = {"0","0","0","0","0"};
 
     private MyDbHelper helper;
     private SQLiteDatabase db;
@@ -50,10 +50,12 @@ public class ranking extends ActionBarActivity {
                 MyDbHelper.SCORE + " desc"     //orderBy
         );
 
-        int j = 1;
-        while (c.moveToNext()) {    //カラム数だけ回る
-            str[j-1] = (j) + ":" + "\t" + c.getInt(c.getColumnIndex(MyDbHelper.SCORE))
+        int j = 0;
+        c.moveToFirst();
+        while (j < 5) {    //カラム数だけ回る
+            str[j] = (j+1) + ":" + "\t" + c.getInt(c.getColumnIndex(MyDbHelper.SCORE))
                 + "\t" + c.getString(c.getColumnIndex(MyDbHelper.NAME));
+            c.moveToNext();
             j++;
         }
 
