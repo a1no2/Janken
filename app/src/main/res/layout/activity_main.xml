@@ -107,7 +107,7 @@
 
 
             <TextView
-                android:id="@+id/CPU_tv"
+                android:id="@+id/centerHelp_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:scaleType="centerInside"
@@ -175,11 +175,11 @@
 
 
         <TextView
-            android:id="@+id/textView3"
+            android:id="@+id/underHelp_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="画像をタッチして勝負"
+            android:text="下の3つの画像をタッチして勝負"
             android:textColor="#111111"
             android:textSize="25dp"
             android:layout_gravity="center_horizontal" />

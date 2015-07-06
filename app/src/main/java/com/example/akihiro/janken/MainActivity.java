@@ -22,7 +22,9 @@ import java.util.Random;
 import java.util.logging.LogRecord;
 /*
 はんどらーのやつ
-制限時間のこといじる
+制限時間けせない
+
+早漏乙は消した方が良い(はよけせ)
 */
 public class MainActivity extends ActionBarActivity {
     MyTimer timer = null;          //タイマー
@@ -33,7 +35,7 @@ public class MainActivity extends ActionBarActivity {
     String[] result = {"名無し","0","0"};  //名前とスコアをリザルト画面に持っていくときに使用
     boolean start_bool = true;      //スタート出来る状態がtrue
     boolean time_bool = false;       //制限時間が減っていくとき真、リスタート押すと偽で制限時間が止まる
-    boolean sourou_bool = true;     //早漏処理ができる状態がtrue
+    boolean sourou_bool = true;     //ゲームが始まってなかったらtrue
     int sourou_int = 0;             //早漏処理起動回数
 
     //画面表示に関するもの
@@ -42,7 +44,8 @@ public class MainActivity extends ActionBarActivity {
     ImageButton gu, tyoki, pa;
     TextView time_tv;           //残り時間カウント
     TextView syouri_tv;         //勝利回数のカウント
-    TextView CPU_tv;            //ヘルプ的な
+    TextView centerHelp_tv;     //ヘルプ的な
+    TextView underHelp_tv;      //下側にあるのヘルプ的な何か
     EditText editText_name;     //ユーザー名かくとこ
 
     Handler handler = new Handler();        //○○秒後に処理、制限時間を設ける30秒の予定
@@ -65,7 +68,8 @@ public class MainActivity extends ActionBarActivity {
         pa = (ImageButton) findViewById(R.id.pa_bt);
 
         syouri_tv = (TextView) findViewById(R.id.syouri_tv);    //勝った数のカウントの表示
-        CPU_tv = (TextView) findViewById(R.id.CPU_tv);           //スタートボタンでゲーム開始の案内
+        centerHelp_tv = (TextView)findViewById(R.id.centerHelp_tv);    //スタートボタンでゲーム開始の案内
+        underHelp_tv = (TextView)findViewById(R.id.underHelp_tv);
         time_tv = (TextView)findViewById(R.id.time_tv);         //残り時間の表示
 
         //初期設定
@@ -77,7 +81,7 @@ public class MainActivity extends ActionBarActivity {
             public void onClick(View v) {
                 if (start_bool) {       //ゲームが始まっていないときの処理
                     //ネタ考え中
-                    sourou();       //早漏ボタン
+                    //sourou();       //早漏ボタン
                 } else {                //ゲームが始まっていれば通常処理
                     switch (CPU) {
                         case (2):
@@ -96,7 +100,7 @@ public class MainActivity extends ActionBarActivity {
             public void onClick(View v) {
 
                 if (start_bool) {       //ゲームが始まっていないときの処理
-                    sourou();       //早漏ボタン
+                    //sourou();       //早漏ボタン
                 } else {                //ゲームが始まっていれば通常処理
                     switch (CPU) {
                         case (0):
@@ -116,7 +120,7 @@ public class MainActivity extends ActionBarActivity {
             public void onClick(View v) {
 
                 if (start_bool) {       //ゲームが始まっていないときの処理
-                    sourou();       //早漏ボタン
+                    //sourou();       //早漏ボタン
                 } else {                //ゲームが始まっていれば通常処理
                     switch (CPU) {
                         case (1):
@@ -142,38 +146,19 @@ public class MainActivity extends ActionBarActivity {
                     time_bool = true;      //ゲームスタートしたので制限時間が減っていく
                     staret.setText("リスタート");
                     janken_me();        //じゃんけんの画像設置
-                    CPU_tv.setText("CPU");
+                    centerHelp_tv.setText("CPU");
+                    underHelp_tv.setText("画像をタッチして勝負");
 
-                    time_tv = (TextView)findViewById(R.id.time_tv);     //上で宣言したはずやけど一応　制限時間
+                    time_tv = (TextView)findViewById(R.id.time_tv);     //一応...ね？　制限時間
 
                     timer = new MyTimer(
                             30000,       //何秒カウントダウンするか　持ち時間
                             10,        //インターバル,ミリ秒
                             time_tv,    //
-                            getApplicationContext()     //画面情報
+                            MainActivity.this     //画面情報
                     );
                     timer.start();
 
-                    //30秒後リザルト画面に移動
-                    //handlern = new Handler();
-                    handler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (start_bool) {
-
-                            } else {
-                                result[0] = editText_name.getText().toString();
-                                result[1] = String.valueOf(syouri);
-                                result[2] = String.valueOf(goukei);
-                                syokika();  //初期化メソッド
-
-                                Intent i = new Intent(MainActivity.this, Result.class);
-                                i.putExtra("riza", result);
-                                startActivity(i);
-                            }
-
-                        }
-                    }, 30000);        //ミリ秒(30秒)、デバックは3秒になってるから0一個増やす
                 } else {
                     showDialog(1);
                 }
@@ -224,23 +209,24 @@ public class MainActivity extends ActionBarActivity {
 
 
     //早漏ボタン
-    public void sourou(){
-        if(sourou_bool){
-            sourou_bool = false;
-            CPU_tv.setText("早漏乙");
-
-            Runnable setTextCPU = new Runnable() {
-                @Override
-                public void run() {
-                    CPU_tv.setText("右上のスタートボタンで\nゲームを始められるよ");
-                    sourou_bool = true;
-                }
-            };
-            handler.postDelayed(setTextCPU, 700);
-        }
-
-
-    }
+//    ネタ　消します
+//    public void sourou(){
+//        if(sourou_bool){
+//            sourou_bool = false;
+//            CPU_tv.setText("早漏乙");
+//
+//            Runnable setTextCPU = new Runnable() {
+//                @Override
+//                public void run() {
+//                    CPU_tv.setText("右上のスタートボタンで\nゲームを始められるよ");
+//                    sourou_bool = true;
+//                }
+//            };
+//            handler.postDelayed(setTextCPU, 700);
+//        }
+//
+//
+//    }
 
 
 
@@ -307,6 +293,7 @@ public class MainActivity extends ActionBarActivity {
                         .setCancelable(false)
                         .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
+                                timer.cancel();
                                 syokika();  //初期化メソッド
                             }
                         })
@@ -328,7 +315,8 @@ public class MainActivity extends ActionBarActivity {
         start_bool = true;      //スタート出来るときtrue
         time_bool = false;      //ゲームスタートまでカウントはストップ
         staret.setText("スタート");
-        CPU_tv.setText("スタートボタンで\nゲームを始められるよ");
+        centerHelp_tv.setText("右上にあるスタートボタンで\nゲームを始められるよ");
+        underHelp_tv.setText("右上のスタートボタンを押してね");
 
 
         syouri_tv.setText("勝利回数：" + syouri);

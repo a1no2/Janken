@@ -157,7 +157,7 @@ public class Result extends ActionBarActivity {
         db = helper.getWritableDatabase();
         values = new ContentValues();
 
-        if (uketori_name[0] == "") {
+        if (uketori_name[0].equals("")) {
             values.put(MyDbHelper.NAME, "名無し");
         } else {
             values.put(MyDbHelper.NAME, uketori_name[0]);
